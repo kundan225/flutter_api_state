@@ -1,0 +1,19 @@
+name: flutter_api_state
+description: A Flutter package that simplifies async UI state handling (loading, success, error, empty) with built-in retry and pull-to-refresh support.
+version: 0.0.6
+homepage:
+
+environment:
+  sdk: ^3.10.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:

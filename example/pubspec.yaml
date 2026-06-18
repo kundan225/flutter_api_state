@@ -1,0 +1,21 @@
+name: flutter_api_state_example
+description: Example app demonstrating ApiStateBuilder from flutter_api_state.
+publish_to: 'none'
+version: 0.0.1
+
+environment:
+  sdk: ^3.10.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  flutter_api_state:
+    path: ../
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
