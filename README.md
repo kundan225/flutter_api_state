@@ -16,7 +16,7 @@ and adds the things you usually bolt on later (retry, refresh, offline check).
 
 ```yaml
 dependencies:
-  flutter_api_state: ^0.0.6
+  flutter_api_state: ^0.0.7
 ```
 
 ```dart

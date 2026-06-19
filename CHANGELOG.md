@@ -1,3 +1,11 @@
+## 0.0.7
+
+* Improve pub.dev platform-support score by switching the network checker
+  to the canonical three-file conditional-import pattern (stub + `dart:io`
+  + web). Behaviour is unchanged: `dart:io` DNS lookup on
+  Android / iOS / Linux / macOS / Windows, no-op on web, sensible default
+  when the platform can't be determined statically.
+
 ## 0.0.6
 
 * Fix: "Null check operator used on a null value" crash when the no-network
