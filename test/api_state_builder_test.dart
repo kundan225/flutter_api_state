@@ -302,6 +302,45 @@ void main() {
       expect(find.text('Retry'), findsOneWidget);
     });
 
+    testWidgets(
+        'enablePullToRefresh in an unbounded vertical parent '
+        '(SingleChildScrollView + Column) degrades gracefully — '
+        'content renders, no exceptions, no RefreshIndicator',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const Text('header'),
+                  ApiStateBuilder<List<int>>(
+                    future: () async => [1, 2, 3],
+                    loading: const SizedBox.shrink(),
+                    enablePullToRefresh: true,
+                    enableRetry: true,
+                    success: (_, data) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (final n in data) Text('item-$n'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('header'), findsOneWidget);
+      expect(find.text('item-1'), findsOneWidget);
+      expect(find.text('item-3'), findsOneWidget);
+      // In unbounded vertical context we skip the RefreshIndicator wrap.
+      expect(find.byType(RefreshIndicator), findsNothing);
+    });
+
     testWidgets('does not wrap in RefreshIndicator when disabled',
         (tester) async {
       await tester.pumpWidget(_wrap(

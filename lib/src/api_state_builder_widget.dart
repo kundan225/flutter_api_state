@@ -132,36 +132,51 @@ class _ApiStateBuilderState<T> extends State<ApiStateBuilder<T>> {
   Widget _wrapWithRefresh(Widget child) {
     if (!widget.enablePullToRefresh) return child;
 
-    // RefreshIndicator requires a scrollable descendant.
-    // - If the child is already a ScrollView (ListView, GridView,
-    //   CustomScrollView, SingleChildScrollView, ...) or a raw Scrollable,
-    //   pass it through untouched. Wrapping an unbounded scrollable in
-    //   another SingleChildScrollView causes "RenderBox was not laid out".
-    // - Otherwise (Text, Column, Center, ...), wrap in a single-item ListView
-    //   so pull-down still works.
-    final scrollable = (child is ScrollView || child is Scrollable)
-        ? child
-        : LayoutBuilder(
-            builder: (context, constraints) {
-              // Bound the child to the viewport height so its descendants
-              // (Column / Flexible / mainAxisAlignment.center in the
-              // no-network / error widgets) have a finite parent height.
-              // ListView gives its direct children unbounded height by
-              // default, which breaks Flexible.
-              final wrapped = constraints.hasBoundedHeight
-                  ? SizedBox(height: constraints.maxHeight, child: child)
-                  : child;
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [wrapped],
-              );
-            },
-          );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // RefreshIndicator + its inner ListView both require BOUNDED
+        // vertical constraints. If the parent is unbounded (we're inside
+        // a SingleChildScrollView / Column without Expanded / etc.), wrapping
+        // here would assert "Vertical viewport was given unbounded height"
+        // and render nothing. Degrade gracefully: skip the refresh wrap so
+        // the content still renders, and tell the developer in debug.
+        if (!constraints.hasBoundedHeight) {
+          assert(() {
+            debugPrint(
+              'ApiStateBuilder: enablePullToRefresh is true but the parent '
+              'provides unbounded vertical constraints. Pull-to-refresh '
+              'needs a bounded parent — wrap ApiStateBuilder in Expanded / '
+              'SizedBox / SliverFillRemaining, or put a RefreshIndicator '
+              'above your outer scrollable yourself. Skipping the '
+              'RefreshIndicator wrap so the current state can render.',
+            );
+            return true;
+          }());
+          return child;
+        }
 
-    return RefreshIndicator(
-      color: widget.refreshIndicatorColor,
-      onRefresh: _refresh,
-      child: scrollable,
+        // Bounded parent — safe to wrap.
+        // - If the child is already a ScrollView / Scrollable, pass it
+        //   through untouched (wrapping an unbounded ListView.builder in
+        //   another SingleChildScrollView produces "RenderBox was not laid
+        //   out").
+        // - Otherwise wrap in a single-item ListView, sized to the viewport
+        //   so the inner Column / mainAxisAlignment.center lays out.
+        final scrollable = (child is ScrollView || child is Scrollable)
+            ? child
+            : ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: constraints.maxHeight, child: child),
+                ],
+              );
+
+        return RefreshIndicator(
+          color: widget.refreshIndicatorColor,
+          onRefresh: _refresh,
+          child: scrollable,
+        );
+      },
     );
   }
 
@@ -172,10 +187,11 @@ class _ApiStateBuilderState<T> extends State<ApiStateBuilder<T>> {
     final retryBtn = widget.retryButtonBuilder?.call(context, _retry) ??
         ElevatedButton(onPressed: _retry, child: const Text('Retry'));
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Flexible(child: body),
+        body,
         const SizedBox(height: 12),
         retryBtn,
       ],
@@ -189,10 +205,11 @@ class _ApiStateBuilderState<T> extends State<ApiStateBuilder<T>> {
     final retryBtn = widget.retryButtonBuilder?.call(context, _retry) ??
         ElevatedButton(onPressed: _retry, child: const Text('Retry'));
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Flexible(child: errorWidget),
+        errorWidget,
         const SizedBox(height: 12),
         retryBtn,
       ],

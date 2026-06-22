@@ -16,7 +16,7 @@ and adds the things you usually bolt on later (retry, refresh, offline check).
 
 ```yaml
 dependencies:
-  flutter_api_state: ^0.0.7
+  flutter_api_state: ^0.0.9
 ```
 
 ```dart
@@ -240,10 +240,8 @@ ApiStateBuilder<List<Item>>(
 )
 ```
 
-## Changelog
+## Contact Developer
 
-See [CHANGELOG.md](CHANGELOG.md).
+kundansatya50@gmail.com
 
-## License
 
-MIT — see [LICENSE](LICENSE).

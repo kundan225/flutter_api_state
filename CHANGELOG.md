@@ -1,3 +1,19 @@
+## 0.0.9
+
+* Fix: `enablePullToRefresh: true` inside an unbounded vertical parent
+  (e.g. `SingleChildScrollView` + `Column` without `Expanded`) silently
+  rendered nothing because the inner `ListView` asserted on unbounded
+  height. The widget now detects unbounded constraints, skips the
+  `RefreshIndicator` wrap, logs a debug warning explaining the fix,
+  and still renders the current state.
+
+## 0.0.8
+
+* Fix: error / no-network states with `enableRetry: true` now lay out
+  correctly even when the parent provides unbounded vertical constraints
+  (e.g. inside a `SingleChildScrollView` / `Column`). The retry column no
+  longer uses `Flexible`; it sizes to its children.
+
 ## 0.0.7
 
 * Improve pub.dev platform-support score by switching the network checker
