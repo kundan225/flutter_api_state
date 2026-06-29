@@ -8,6 +8,8 @@
 class EmptyDetector {
   const EmptyDetector._();
 
+  //hello
+
   /// Returns `true` if [value] should render the empty state.
   static bool isEmpty(Object? value) {
     if (value == null) return true;
