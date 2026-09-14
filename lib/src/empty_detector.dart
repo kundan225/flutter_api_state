@@ -18,4 +18,6 @@ class EmptyDetector {
     if (value is String) return value.isEmpty;
     return false;
   }
+
+
 }
